@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a18">
+<title>BrainBox Games</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BrainBox">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{--a1:#8b5cf6;--a2:#ec4899;font-family:'Outfit',system-ui,sans-serif;background:#0a0a18;color:#fff;user-select:none;-webkit-user-select:none;overflow:hidden}
+#bg{position:fixed;inset:0;overflow:hidden}
+#bg i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:float 14s ease-in-out infinite}
+#bg i:nth-child(1){width:360px;height:360px;background:var(--a1);top:-80px;left:-80px}
+#bg i:nth-child(2){width:320px;height:320px;background:var(--a2);bottom:-60px;right:-60px;animation-delay:-5s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.2)}}
+main{position:relative;height:100%;max-width:520px;margin:auto;padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.logo{font-size:clamp(40px,13vw,62px);font-weight:900;letter-spacing:.08em;line-height:1;background:linear-gradient(90deg,#fff,var(--a1),var(--a2),#fff);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;filter:drop-shadow(0 0 24px var(--a1))}
+@keyframes shine{to{background-position:-250% 0}}
+.tag{opacity:.7;margin:8px 0 28px}
+.cards{width:100%;max-width:360px;display:grid;gap:14px}
+.card{display:flex;align-items:center;gap:16px;padding:18px;border-radius:22px;text-decoration:none;color:#fff;text-align:left;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:.15s}
+.card:active{transform:scale(.97)}
+.ico{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 10px 24px -8px var(--a1);flex:none}
+.card:nth-child(2) .ico{background:linear-gradient(135deg,#f59e0b,#ec4899)}
+.card b{display:block;font-size:21px;font-weight:900;letter-spacing:.04em}
+.card small{opacity:.7;font-size:14px}
+.btn{margin-top:22px;padding:14px 22px;border-radius:16px;font:600 16px 'Outfit',system-ui,sans-serif;color:#fff;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}
+.btn[hidden],.tip[hidden]{display:none}
+.tip{margin-top:20px;opacity:.75;font-size:14px;max-width:300px}
+.foot{margin-top:26px;opacity:.5;font-size:13px}
+</style>
+</head>
+<body>
+<div id="bg"><i></i><i></i></div>
+<main>
+ <div class="logo">BRAINBOX</div>
+ <p class="tag">Do games. Zero rupaye. Unlimited maza.</p>
+ <div class="cards">
+  <a class="card" href="mergex.html"><div class="ico">🔢</div><div><b>MERGEX 2048</b><small>Tiles jodo, limit todo</small></div></a>
+  <a class="card" href="memora.html"><div class="ico">🧠</div><div><b>MEMORA</b><small>Dimaag ko challenge do</small></div></a>
+ </div>
+ <button class="btn" id="inst" hidden>📲 App install karo</button>
+ <p class="tip" id="ios" hidden>iPhone par: Share button dabao, phir <b>Add to Home Screen</b> chuno.</p>
+ <p class="foot">Offline bhi chalta hai ✓</p>
+</main>
+<script>
+let dp=null;
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(!standalone)document.getElementById('inst').hidden=false});
+document.getElementById('inst').onclick=async()=>{
+ if(!dp)return;dp.prompt();await dp.userChoice;dp=null;document.getElementById('inst').hidden=true;
+};
+addEventListener('appinstalled',()=>{document.getElementById('inst').hidden=true});
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)document.getElementById('ios').hidden=false;
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
