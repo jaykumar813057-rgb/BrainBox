@@ -1,6 +1,6 @@
 /* Offline support: network-first, cache fallback. Update aane par V badal do (brainbox-v2 ...). */
-const V='brainbox-v1';
-const ASSETS=['./','index.html','memora.html','mergex.html','lb.js','manifest.json','icon-192.png','icon-512.png'];
+const V='brainbox-v2';
+const ASSETS=['./','index.html','memora.html','mergex.html','lb.js','core.js','ui.css','manifest.json','icon-192.png','icon-512.png'];
 
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(V).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));

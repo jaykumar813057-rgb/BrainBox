@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0a0a18">
+<meta name="theme-color" content="#0a0720">
 <title>MERGEX 2048</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
@@ -11,62 +11,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ui.css">
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
-body{--a1:#8b5cf6;--a2:#ec4899;font-family:'Outfit',system-ui,sans-serif;background:#0a0a18;color:#fff;user-select:none;-webkit-user-select:none}
-
-#bg{position:fixed;inset:0;overflow:hidden;z-index:0}
-#bg i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;animation:float 14s ease-in-out infinite}
-#bg i:nth-child(1){width:360px;height:360px;background:var(--a1);top:-80px;left:-80px}
-#bg i:nth-child(2){width:320px;height:320px;background:var(--a2);bottom:-60px;right:-60px;animation-delay:-5s}
-#bg i:nth-child(3){width:240px;height:240px;background:var(--a1);top:45%;left:55%;animation-delay:-9s;opacity:.25}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.2)}}
-#fx{position:fixed;inset:0;pointer-events:none;z-index:60}
-
-#app{position:fixed;inset:0;max-width:520px;margin:auto;z-index:1}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom))}
-.screen.active{display:flex;animation:fade .4s ease}
-@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-
-button{font-family:inherit;color:#fff;cursor:pointer;border:0}
-.btn{width:100%;padding:16px;margin:6px 0;font-size:17px;font-weight:600;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:.15s}
-.btn:active{transform:scale(.97)}
-.btn.primary{background:linear-gradient(135deg,var(--a1),var(--a2));border:0;box-shadow:0 10px 30px -8px var(--a1);font-weight:800}
-.btn.ghost{background:transparent}
-.btn small{display:block;opacity:.7;font-weight:400;font-size:13px;margin-top:2px}
-.icon{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);font-size:18px;backdrop-filter:blur(10px);flex:none}
-
-/* home */
-#home{align-items:center;justify-content:center;text-align:center}
-.logo{font-size:clamp(44px,14vw,68px);font-weight:900;letter-spacing:.1em;line-height:1;background:linear-gradient(90deg,#fff,var(--a1),var(--a2),#fff);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;filter:drop-shadow(0 0 24px var(--a1))}
-@keyframes shine{to{background-position:-250% 0}}
-.sub{font-size:22px;font-weight:800;letter-spacing:.6em;margin:6px -.6em 0 0;opacity:.9}
-.tag{margin:8px 0 20px;opacity:.7;font-size:15px}
-.demo{display:flex;gap:10px;margin-bottom:24px}
-.dt{width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;animation:bob 2.6s ease-in-out infinite;box-shadow:0 8px 20px rgba(0,0,0,.35)}
-.dt:nth-child(2){animation-delay:.25s}.dt:nth-child(3){animation-delay:.5s}.dt:nth-child(4){animation-delay:.75s}
-@keyframes bob{50%{transform:translateY(-9px) scale(1.06)}}
-.menu{width:100%;max-width:340px}
-.stats{margin-top:16px;opacity:.75;font-size:15px}
-
-/* game */
-.hud{display:flex;align-items:center;gap:10px}
-.hud-mid{flex:1;font-weight:800;font-size:16px;opacity:.9;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.box{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:6px 12px;text-align:center;min-width:72px;backdrop-filter:blur(10px)}
-.box small{display:block;opacity:.6;font-size:10px;letter-spacing:2px}
-.box b{font-size:21px;font-weight:900;display:inline-block}
-.box b.bump{animation:bump .3s}
-@keyframes bump{50%{transform:scale(1.35)}}
+#goalbar{margin:10px 0 0}
+#goalbar .gl{display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:5px}
+#goalFill{height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--a1),var(--a2));box-shadow:0 0 12px var(--a1);transition:width .35s}
+#movesTxt.low{color:#ff6b6b}
 #boardWrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;touch-action:none;margin:10px 0}
-#board{position:relative;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);box-shadow:0 20px 60px rgba(0,0,0,.45);backdrop-filter:blur(10px)}
+#board{position:relative;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 60px -18px rgba(0,0,0,.75),0 0 55px -16px var(--a1),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(8px)}
 #cells{position:absolute;inset:0;display:grid;padding:var(--gap);gap:var(--gap)}
-.cellbg{background:rgba(255,255,255,.07);border-radius:calc(var(--cell)*.14)}
+.cellbg{background:rgba(255,255,255,.07);border-radius:calc(var(--cell)*.14);box-shadow:inset 0 2px 6px rgba(0,0,0,.25)}
 .tile{position:absolute;left:0;top:0;width:var(--cell);height:var(--cell);transition:transform .12s ease-out;will-change:transform}
 .tile .in{width:100%;height:100%;border-radius:calc(var(--cell)*.14);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35);position:relative;overflow:hidden}
-.tile .in::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.35),transparent 45%);pointer-events:none}
+.tile .in::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.36),transparent 45%);pointer-events:none}
+.tile .in.stone{background:linear-gradient(145deg,#6b7280,#1f2937)!important;color:rgba(255,255,255,.25);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12),0 4px 10px rgba(0,0,0,.4)!important}
 .spawnIn{animation:spawnIn .25s .12s both}
 .spawnNow{animation:spawnIn .3s both}
 .mergeIn{animation:mergeIn .3s .1s both}
@@ -77,213 +36,190 @@ button{font-family:inherit;color:#fff;cursor:pointer;border:0}
 #board.smashing .tile{cursor:crosshair}
 #board.smashing .tile .in{outline:2px dashed #fff;animation:wob .5s ease-in-out infinite alternate}
 @keyframes wob{to{transform:scale(.92) rotate(-3deg)}}
-.power{display:flex;gap:8px}
-.pw{flex:1;padding:12px 6px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);font-weight:700;font-size:14px;backdrop-filter:blur(10px)}
-.pw em{font-style:normal;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:9px;padding:1px 8px;margin-left:3px}
-.pw:disabled{opacity:.35}.pw:active:not(:disabled){transform:scale(.96)}
-.float{position:fixed;transform:translate(-50%,-50%);font-weight:900;font-size:20px;color:#ffd166;text-shadow:0 2px 12px #000;pointer-events:none;z-index:70;animation:fup .9s ease-out forwards;white-space:nowrap}
-@keyframes fup{to{transform:translate(-50%,-190%);opacity:0}}
-
-/* modal */
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,5,16,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:80}
-.modal.show{display:flex}
-.sheet{width:min(92vw,380px);max-height:92vh;overflow:auto;padding:26px 22px;border-radius:28px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.22);box-shadow:0 30px 80px rgba(0,0,0,.6);text-align:center;animation:rise .45s cubic-bezier(.2,1.3,.4,1)}
-@keyframes rise{from{opacity:0;transform:translateY(40px) scale(.9)}to{opacity:1;transform:none}}
-.sheet h2{margin:4px 0 6px;font-size:26px;font-weight:900}.sheet h3{margin:16px 0 8px;opacity:.7;font-size:14px;letter-spacing:2px}
-.big{font-size:60px;animation:bounce 1s ease infinite}
-@keyframes bounce{50%{transform:translateY(-10px) scale(1.1)}}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 14px}
-.grid2 div{background:rgba(255,255,255,.08);border-radius:14px;padding:10px}.grid2 small{display:block;opacity:.6;font-size:12px}.grid2 b{font-size:22px;font-weight:900}
-.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-weight:600}
-.tog{padding:8px 18px;border-radius:20px;background:rgba(255,255,255,.12);font-weight:800}.tog.on{background:linear-gradient(135deg,var(--a1),var(--a2))}
-.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.chip{padding:12px;border-radius:14px;background:rgba(255,255,255,.1);border:2px solid transparent;font-weight:700;font-size:15px}.chip.on{border-color:var(--a2);background:rgba(255,255,255,.2)}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.8);padding:10px 18px;border-radius:20px;z-index:90;font-weight:600;animation:fade .3s;white-space:nowrap}
+.hud .box{min-width:66px}
+.pw.sm{flex:0 0 52px}
 </style>
 </head>
 <body>
 <div id="bg"><i></i><i></i><i></i></div>
+<canvas id="sky"></canvas>
 <canvas id="fx"></canvas>
 
 <main id="app">
+ <!-- HOME -->
  <section id="home" class="screen active">
-  <div class="logo">MERGEX</div>
-  <div class="sub">2048</div>
-  <p class="tag">Tiles jodo. Limit todo.</p>
-  <div class="demo" id="demo"></div>
-  <div class="menu">
-   <button class="btn primary" id="btnCont" onclick="continueGame()" style="display:none">▶ Continue</button>
-   <button class="btn" onclick="pickSize()">🎮 New Game</button>
-   <button class="btn" onclick="startDaily()">📅 Daily Challenge <span id="dailyBadge"></span></button>
-   <button class="btn" id="btnLB" onclick="lbMenu()" style="display:none">🏆 Leaderboard</button>
-   <button class="btn ghost" onclick="openSettings()">⚙ Settings</button>
-   <a class="btn ghost" href="index.html" style="display:block;text-decoration:none;text-align:center;color:#fff">🎮 Saare games</a>
+  <div class="topbar">
+   <a class="icon" href="index.html">‹</a>
+   <div class="pbar" id="pbar"></div>
+   <button class="icon" onclick="settingsModal()">⚙</button>
   </div>
-  <div class="stats">🏆 Best (Classic 4×4): <b id="sBest">0</b></div>
+  <div class="hero">
+   <div class="floaty" id="xLogo"></div>
+   <div class="wordmark glitch" data-text="MERGEX">MERGEX</div>
+   <div class="tagline">Tiles jodo · Limit todo</div>
+  </div>
+  <div class="menu">
+   <button class="btn big primary" onclick="playCurrent()"><span class="bi">▶</span><span class="bt">PLAY<small id="curLabel"></small></span></button>
+   <button class="btn" id="btnCont" onclick="continueGame()" style="display:none">↩ Continue</button>
+   <div class="row2">
+    <button class="btn big" onclick="openLevels()"><span class="bi">🗺</span>Levels</button>
+    <button class="btn big" onclick="startDaily()"><span class="bi">📅</span>Daily <span id="dailyBadge"></span></button>
+   </div>
+   <div class="row2">
+    <button class="btn big" onclick="pickSize()"><span class="bi">🎮</span>Classic</button>
+    <button class="btn big" id="btnLB" onclick="lbMenu()" style="display:none"><span class="bi">🏆</span>Ranks</button>
+   </div>
+  </div>
  </section>
 
+ <!-- LEVEL MAP -->
+ <section id="levels" class="screen">
+  <div class="topbar"><button class="icon" onclick="go('home')">‹</button><div class="pbar" id="pbar2"></div></div>
+  <div id="wmBox" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+ </section>
+
+ <!-- GAME -->
  <section id="game" class="screen">
   <header class="hud">
-   <button class="icon" onclick="toHome()">←</button>
+   <button class="icon" onclick="toHome()">‹</button>
    <div class="hud-mid" id="modeName"></div>
    <div class="box"><small>SCORE</small><b id="score">0</b></div>
    <div class="box"><small>BEST</small><b id="best">0</b></div>
   </header>
+  <div id="goalbar"><div class="gl"><span id="goalTxt"></span><span id="movesTxt"></span></div><div class="track"><div id="goalFill"></div></div></div>
   <div id="boardWrap"><div id="board"><div id="cells"></div></div></div>
   <footer class="power">
    <button class="pw" id="pUndo" onclick="undo()">↩ Undo <em id="nUndo">3</em></button>
    <button class="pw" id="pSmash" onclick="toggleSmash()">💥 Smash <em id="nSmash">1</em></button>
-   <button class="pw" onclick="restart()">⟳</button>
-   <button class="pw" onclick="shareNow()">📤</button>
+   <button class="pw sm" onclick="restart()">⟳</button>
+   <button class="pw sm" onclick="shareNow()">📤</button>
   </footer>
  </section>
 </main>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
+<script src="core.js"></script>
 <script src="lb.js"></script>
 <script>
-const $=id=>document.getElementById(id);
-const THEMES={
- neon:{n:'Neon',i:'🌌',h:275,a1:'#8b5cf6',a2:'#ec4899'},
- ocean:{n:'Ocean',i:'🌊',h:195,a1:'#3b82f6',a2:'#06b6d4'},
- sunset:{n:'Sunset',i:'🌅',h:15,a1:'#f97316',a2:'#ef4444'},
- forest:{n:'Forest',i:'🌿',h:140,a1:'#10b981',a2:'#84cc16'}
-};
-const COLS=['#ffd166','#ef476f','#06d6a0','#118ab2','#a78bfa','#ffffff'];
+Sky.init('hub');fxInit();
 
 /* ---------- SAVE ---------- */
-let S={theme:'neon',sound:true,vib:true,best:{}};
-try{Object.assign(S,JSON.parse(localStorage.getItem('mergex_v1')||'{}'))}catch(e){}
-if(!THEMES[S.theme])S.theme='neon';
-function saveS(){try{localStorage.setItem('mergex_v1',JSON.stringify(S))}catch(e){}}
-const TH=()=>THEMES[S.theme];
-function applyTheme(){document.body.style.setProperty('--a1',TH().a1);document.body.style.setProperty('--a2',TH().a2)}
-applyTheme();
-
-/* ---------- AUDIO / HAPTIC ---------- */
-let AC;
-function tone(f,d=.12,type='sine',v=.15,delay=0){
- if(!S.sound)return;
- try{
-  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
-  if(AC.state==='suspended')AC.resume();
-  const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
-  o.type=type;o.frequency.value=f;
-  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);
- }catch(e){}
-}
-const sfx={
- move:()=>tone(300,.05,'triangle',.05),
- merge:v=>{const k=Math.log2(v);tone(260*Math.pow(2,k/7),.16,'sine',.14);tone(520*Math.pow(2,k/7),.12,'triangle',.06,.05)},
- win:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.15,i*.1)),
- lose:()=>[400,330,260,200].forEach((f,i)=>tone(f,.3,'sawtooth',.09,i*.15)),
- smash:()=>{tone(180,.18,'square',.09);tone(90,.25,'sawtooth',.09,.06)},
- undo:()=>{tone(500,.1,'triangle',.08);tone(380,.12,'triangle',.08,.08)}
-};
-function vib(p){if(S.vib&&navigator.vibrate)try{navigator.vibrate(p)}catch(e){}}
-
-/* ---------- PARTICLES ---------- */
-const cv=$('fx'),cx=cv.getContext('2d');let P=[],raf=0;
-function rsz(){cv.width=innerWidth;cv.height=innerHeight}
-addEventListener('resize',()=>{rsz();fit()});rsz();
-function loop(){
- cx.clearRect(0,0,cv.width,cv.height);
- P=P.filter(p=>p.l>0&&p.y<cv.height+40);
- for(const p of P){
-  p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.l-=p.d;p.r+=p.vr;
-  cx.save();cx.globalAlpha=Math.min(1,Math.max(p.l,0));cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;
-  if(p.sq)cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);else{cx.beginPath();cx.arc(0,0,p.s/2,0,7);cx.fill()}
-  cx.restore();
- }
- raf=P.length?requestAnimationFrame(loop):0;
- if(!P.length)cx.clearRect(0,0,cv.width,cv.height);
-}
-function kick(){if(!raf)raf=requestAnimationFrame(loop)}
-function burst(x,y,n=22){
- for(let i=0;i<n;i++){const a=Math.random()*6.28,s=2+Math.random()*5;
-  P.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,g:.12,l:1,d:.03,s:4+Math.random()*5,c:COLS[i%COLS.length],r:0,vr:0})}
- kick();
-}
-function confetti(){
- for(let i=0;i<150;i++)P.push({x:Math.random()*cv.width,y:-20-Math.random()*250,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,g:.05,l:1.8,d:.008,s:6+Math.random()*8,c:COLS[i%COLS.length],sq:1,r:Math.random()*6,vr:(Math.random()-.5)*.3});
- kick();
-}
-function burstCell(r,c,v){
- const b=$('board').getBoundingClientRect();
- burst(b.left+pos(c)+cell/2,b.top+pos(r)+cell/2,Math.min(40,10+Math.log2(v)*3));
-}
-function gainFloat(n){
- const r=$('score').getBoundingClientRect();
- const f=document.createElement('div');f.className='float';f.textContent='+'+n;
- f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top+r.height)+'px';
- document.body.appendChild(f);setTimeout(()=>f.remove(),900);
+let S={camp:1,cstars:{},best:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem('mergex_v2')||'{}'))}catch(e){}
+function saveS(){try{localStorage.setItem('mergex_v2',JSON.stringify(S))}catch(e){}}
+function onReset(){
+ if(!confirm('Mergex ka saara progress delete ho jayega. Pakka?'))return;
+ S={camp:1,cstars:{},best:{}};saveS();try{localStorage.removeItem('mergex_save')}catch(e){}
+ closeModal();refreshHome();toast('Progress reset ho gaya');
 }
 
-/* ---------- UTILS ---------- */
-function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-let rs=1;
-function rnd(){rs=(rs+0x6D2B79F5)|0;let t=Math.imul(rs^rs>>>15,1|rs);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
-const todayStr=()=>new Date().toLocaleDateString('en-CA');
-let modalOpen=false;
-function modal(html){$('sheet').innerHTML=html;$('modal').classList.add('show');modalOpen=true}
-function closeModal(){$('modal').classList.remove('show');modalOpen=false}
-function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
-function shareText(t){
- if(navigator.share)navigator.share({text:t}).catch(()=>{});
- else if(navigator.clipboard){navigator.clipboard.writeText(t);toast('Copy ho gaya! 📋')}
+/* ---------- infinite campaign levels ---------- */
+const TT=[32,64,128,256,512,1024,2048,2048,2048];
+const SS=[300,800,2000,4000,8000,14000,22000,32000,45000];
+const MM=[8,20,40,70,110,160,230,320,420];
+function campSpec(n){
+ const tier=Math.min(8,Math.floor((n-1)/8)),type=['tile','score','merges'][(n-1)%3];
+ let N=4;
+ if(n%11===0)N=3;else if(n%7===0)N=5;
+ let target=type==='tile'?TT[tier]:type==='score'?SS[tier]:MM[tier];
+ if(n>72&&type!=='tile')target=Math.round(target*Math.min(2,1+Math.floor((n-73)/20)*.25));
+ if(N===3){target=type==='tile'?(tier<2?32:64):type==='score'?Math.min(target,800):Math.min(target,25)}
+ let stones=n<5?0:Math.floor((n-2)/9)+(n%5===0?1:0);
+ const cap=N===3?0:(type==='tile'?(target>=1024?2:target>=256?3:4):6)+(N===5?2:0);
+ stones=Math.min(stones,cap);
+ const limit=type==='tile'?Math.ceil(target/2.2*(2.4-tier*.1))+12+stones*8:0;
+ return{n,N,type,target,stones,limit,tier,boss:n%10===0};
 }
-function go(id){
- document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
- if(id==='home')refreshHome();
+const FAILS={};
+function skipLevel(n){S.camp=Math.max(S.camp,n+1);saveS();startCamp(n+1)}
+function goalText(sp){return sp.type==='tile'?'🎯 Banao '+sp.target:sp.type==='score'?'⭐ Score '+sp.target:'🔗 '+sp.target+' merges'}
+function shortSub(sp){
+ const k=v=>v>=1000?(v/1000).toFixed(v%1000?1:0)+'k':v;
+ return sp.type==='tile'?'🎯'+sp.target:sp.type==='score'?'⭐'+k(sp.target):'🔗'+sp.target;
 }
 
-/* ---------- HOME ---------- */
-function tileStyle(v){
- const k=Math.log2(v),h=(TH().h+k*17)%360;
- return `linear-gradient(145deg,hsl(${h} 85% ${Math.min(66,50+k*1.5)}%),hsl(${(h+25)%360} 80% 42%))`;
-}
+/* ---------- SCREENS ---------- */
+function onScreen(id){Sky.setMode(id==='home'?'hub':'game')}
 function refreshHome(){
- applyTheme();
- $('demo').innerHTML=[2,8,64,2048].map(v=>`<div class="dt" style="background:${tileStyle(v)};font-size:${v>999?18:22}px">${v}</div>`).join('');
- $('sBest').textContent=S.best.s4||0;
+ const w=worldOf(S.camp);setPalette(w.h1,w.h2);tileHue=w.h1;
+ $('pbar').innerHTML=Player.bar();
+ $('xLogo').innerHTML=logoMergex(150);
+ $('curLabel').textContent='Level '+S.camp+' · '+w.name;
  $('dailyBadge').textContent=S.best['d'+todayStr()]?'✅':'';
- $('btnLB').style.display=LB.on?'block':'none';
- $('btnCont').style.display=loadSave()?'block':'none';
+ $('btnLB').style.display=LB.on?'flex':'none';
+ const sv=loadSave();$('btnCont').style.display=sv&&sv.mode!=='camp'?'block':'none';
+ if(sv&&sv.mode!=='camp')$('btnCont').textContent='↩ Continue '+(sv.mode==='daily'?'Daily':sv.N+'×'+sv.N+' Classic');
 }
+let mapW=0;
+function openLevels(){mapW=Math.floor((S.camp-1)/10);renderMap();go('levels');setTimeout(mapFocus,60)}
+function renderMap(){
+ $('pbar2').innerHTML=Player.bar();
+ const w=worldOf(mapW*10+1);setPalette(w.h1,w.h2);
+ $('wmBox').innerHTML=mapPage(mapW,{unlocked:S.camp,starsOf:n=>S.cstars[n]||0,pick:'startCamp',subOf:n=>shortSub(campSpec(n))});
+}
+function mapNav(d){mapW=Math.max(0,mapW+d);renderMap();setTimeout(mapFocus,30)}
 function pickSize(){
- modal(`<h2>🎮 New Game</h2><p style="opacity:.7;margin-top:0">Board ka size chuno</p>
- <button class="btn" onclick="newGame(5,'classic')">🟢 Easy 5×5<small>Zyada jagah, aaram se khelo</small></button>
- <button class="btn primary" onclick="newGame(4,'classic')">⭐ Classic 4×4<small>Asli 2048 challenge</small></button>
- <button class="btn" onclick="newGame(3,'classic')">🔥 Hard 3×3<small>Sirf expert ke liye</small></button>
- <button class="btn ghost" onclick="closeModal()">Cancel</button>`);
+ modal('<h2>🎮 Classic Mode</h2><p style="opacity:.7;margin-top:0">Board ka size chuno</p>'
+ +'<button class="btn" onclick="newGame(5,\'classic\')">🟢 Easy 5×5<small>Zyada jagah, aaram se khelo</small></button>'
+ +'<button class="btn primary" onclick="newGame(4,\'classic\')">⭐ Classic 4×4<small>Asli 2048 challenge</small></button>'
+ +'<button class="btn" onclick="newGame(3,\'classic\')">🔥 Hard 3×3<small>Sirf expert ke liye</small></button>'
+ +'<button class="btn ghost" onclick="closeModal()">Cancel</button>');
 }
 function startDaily(){newGame(4,'daily')}
+function playCurrent(){
+ const sv=loadSave();
+ if(sv&&sv.mode==='camp'&&sv.lvl===S.camp)continueGame();else startCamp(S.camp);
+}
 
 /* ---------- GAME STATE ---------- */
-let G=null,cell=80,gap=10,tid=0;
-const bestKey=()=>G.mode==='daily'?'d'+G.date:'s'+G.N;
-const modeLabel=()=>G.mode==='daily'?'📅 Daily '+G.date.slice(5):({3:'🔥 Hard 3×3',4:'⭐ Classic 4×4',5:'🟢 Easy 5×5'})[G.N];
+let G=null,cell=80,gap=10,tid=0,tileHue=275;
+const bestKey=()=>G.mode==='daily'?'d'+G.date:G.mode==='camp'?'c'+G.N:'s'+G.N;
+function modeLabel(){
+ if(G.mode==='camp'){const w=worldOf(G.lvl);return w.emoji+' Level '+G.lvl}
+ if(G.mode==='daily')return '📅 Daily '+G.date.slice(5);
+ return({3:'🔥 Hard 3×3',4:'⭐ Classic 4×4',5:'🟢 Easy 5×5'})[G.N];
+}
 const pos=i=>gap+i*(cell+gap);
+const rsv={s:1};let rs=1;
+function rnd(){rs=(rs+0x6D2B79F5)|0;let t=Math.imul(rs^rs>>>15,1|rs);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
 
+function baseGame(N,mode){
+ return{N,mode,date:todayStr(),lvl:0,spec:null,grid:Array(N*N).fill(null),score:0,moves:0,merges:0,undos:3,smashes:1,hist:[],won:false,over:false,smashing:false};
+}
 function newGame(N,mode){
  closeModal();
- G={N,mode,date:todayStr(),grid:Array(N*N).fill(null),score:0,undos:3,smashes:1,hist:[],won:false,over:false,smashing:false};
+ G=baseGame(N,mode);
  rs=mode==='daily'?hash('mergex'+G.date):(Math.random()*4294967296)|0;
- build();
- spawn(true);spawn(true);
- updHUD();persist();
+ const w=worldOf(1);setPalette(w.h1,w.h2);tileHue=w.h1;
+ build();spawn(true);spawn(true);updHUD();persist();
 }
-function restart(){if(G)modal(`<h2>Restart?</h2><p style="opacity:.75">Ye game dobara shuru hoga.</p>
- <button class="btn primary" onclick="newGame(G.N,G.mode)">🔄 Haan, restart</button>
- <button class="btn ghost" onclick="closeModal()">Cancel</button>`)}
+function startCamp(n){
+ closeModal();
+ const sp=campSpec(n);
+ G=baseGame(sp.N,'camp');G.lvl=n;G.spec=sp;
+ rs=(Math.random()*4294967296)|0;
+ const w=worldOf(n);setPalette(w.h1,w.h2);tileHue=w.h1;
+ build();
+ // stones
+ const cells=shuffleArr([...Array(sp.N*sp.N).keys()],Math.random).slice(0,sp.stones);
+ cells.forEach(i=>{G.grid[i]=mkTile(-1,Math.floor(i/sp.N),i%sp.N,'spawnNow')});
+ spawn(true);spawn(true);updHUD();persist();
+ banner(sp.boss?'👑 BOSS LEVEL':'LEVEL '+n,goalText(sp)+(sp.limit?' · '+sp.limit+' moves':''));
+}
+function restart(){
+ if(!G)return;
+ modal('<h2>Restart?</h2><p style="opacity:.75">Ye game dobara shuru hoga.</p>'
+ +'<button class="btn primary" onclick="restartNow()">🔄 Haan, restart</button><button class="btn ghost" onclick="closeModal()">Cancel</button>');
+}
+function restartNow(){if(G.mode==='camp')startCamp(G.lvl);else newGame(G.N,G.mode)}
 function build(){
  const b=$('board');b.className='';b.innerHTML='<div id="cells"></div>';
  const cl=$('cells');
- cl.style.gridTemplateColumns=`repeat(${G.N},1fr)`;cl.style.gridTemplateRows=`repeat(${G.N},1fr)`;
+ cl.style.gridTemplateColumns='repeat('+G.N+',1fr)';cl.style.gridTemplateRows='repeat('+G.N+',1fr)';
  cl.innerHTML='<i class="cellbg"></i>'.repeat(G.N*G.N);
  $('modeName').textContent=modeLabel();
+ $('goalbar').style.display=G.mode==='camp'?'block':'none';
  go('game');fit();
 }
 function fit(){
@@ -298,8 +234,13 @@ function fit(){
  b.style.setProperty('--cell',cell+'px');b.style.setProperty('--gap',gap+'px');
  G.grid.forEach(t=>t&&place(t));
 }
+addEventListener('resize',fit);
 
 /* ---------- TILES ---------- */
+function tileBg(v){
+ const k=Math.log2(v),h=(tileHue+k*17)%360;
+ return 'linear-gradient(145deg,hsl('+h+' 85% '+Math.min(66,50+k*1.5)+'%),hsl('+((h+25)%360)+' 80% 42%))';
+}
 function mkTile(v,r,c,anim){
  const el=document.createElement('div');el.className='tile';
  el.innerHTML='<div class="in"></div>';
@@ -310,14 +251,16 @@ function mkTile(v,r,c,anim){
  return t;
 }
 function paint(t){
- const k=Math.log2(t.v),h=(TH().h+k*17)%360,inn=t.el.firstChild;
+ const inn=t.el.firstChild;
+ if(t.v<0){inn.classList.add('stone');inn.textContent='⬢';inn.style.fontSize='calc(var(--cell)*.4)';return}
+ const k=Math.log2(t.v),h=(tileHue+k*17)%360;
  inn.textContent=t.v;
- inn.style.background=tileStyle(t.v);
- inn.style.boxShadow=k>=7?`0 0 ${10+k*2}px hsl(${h} 90% 60% / .75)`:'0 4px 10px rgba(0,0,0,.3)';
+ inn.style.background=tileBg(t.v);
+ inn.style.boxShadow=k>=7?'0 0 '+(10+k*2)+'px hsl('+h+' 90% 60% / .75)':'0 4px 10px rgba(0,0,0,.3)';
  const len=String(t.v).length;
- inn.style.fontSize=`calc(var(--cell)*${len<=2?.46:len===3?.38:len===4?.31:.25})`;
+ inn.style.fontSize='calc(var(--cell)*'+(len<=2?.46:len===3?.38:len===4?.31:.25)+')';
 }
-function place(t){t.el.style.transform=`translate(${pos(t.c)}px,${pos(t.r)}px)`}
+function place(t){t.el.style.transform='translate('+pos(t.c)+'px,'+pos(t.r)+'px)'}
 function spawn(now){
  const e=[];G.grid.forEach((t,i)=>{if(!t)e.push(i)});
  if(!e.length)return;
@@ -334,21 +277,40 @@ function fillCells(cells){
 }
 const cellsOf=()=>G.grid.map(t=>t?t.v:0);
 const maxTile=()=>Math.max(0,...cellsOf());
+const snapNow=()=>({cells:cellsOf(),score:G.score,rs,mv:G.moves,mg:G.merges});
+
+const sfx={
+ move:()=>tone(300,.05,'triangle',.05),
+ merge:v=>{const k=Math.log2(v);tone(260*Math.pow(2,k/7),.16,'sine',.14);tone(520*Math.pow(2,k/7),.12,'triangle',.06,.05)},
+ smash:()=>{tone(180,.18,'square',.09);tone(90,.25,'sawtooth',.09,.06)},
+ undo:()=>{tone(500,.1,'triangle',.08);tone(380,.12,'triangle',.08,.08)}
+};
+function burstCell(r,c,v){
+ const b=$('board').getBoundingClientRect();
+ burst(b.left+pos(c)+cell/2,b.top+pos(r)+cell/2,Math.min(40,10+Math.log2(Math.max(2,v))*3));
+}
+function gainFloat(n){
+ const r=$('score').getBoundingClientRect();
+ const f=document.createElement('div');f.className='float';f.textContent='+'+n;
+ f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top+r.height)+'px';
+ document.body.appendChild(f);setTimeout(()=>f.remove(),900);
+}
 
 /* ---------- MOVE ---------- */
 const VEC={left:[0,-1],right:[0,1],up:[-1,0],down:[1,0]};
 function move(dir){
  if(!G||G.over||modalOpen||!$('game').classList.contains('active'))return;
- if(G.smashing){toggleSmash();}
+ if(G.smashing)toggleSmash();
  const N=G.N,[dr,dc]=VEC[dir];
- const snap={cells:cellsOf(),score:G.score,rs};
+ const snap=snapNow();
  G.grid.forEach(t=>t&&(t.merged=false));
  const rows=[...Array(N).keys()],cols=[...Array(N).keys()];
  if(dr===1)rows.reverse();
  if(dc===1)cols.reverse();
  let moved=false,gain=0,top=0;const kill=[],mergedAt=[];
  for(const r of rows)for(const c of cols){
-  const t=G.grid[r*N+c];if(!t)continue;
+  const t=G.grid[r*N+c];
+  if(!t||t.v<0)continue;
   let nr=r,nc=c;
   for(;;){
    const pr=nr+dr,pc=nc+dc;
@@ -372,13 +334,19 @@ function move(dir){
  if(!moved)return;
  setTimeout(()=>kill.forEach(t=>t.el.remove()),130);
  G.hist.push(snap);if(G.hist.length>20)G.hist.shift();
- G.score+=gain;
+ G.score+=gain;G.moves++;G.merges+=mergedAt.length;
  spawn(false);
  if(gain){
   sfx.merge(top);vib(top>=128?[20,30,30]:12);gainFloat(gain);
   mergedAt.filter(m=>m.v>=64).forEach(m=>setTimeout(()=>burstCell(m.r,m.c,m.v),120));
  }else sfx.move();
  updHUD(!!gain);
+ if(G.mode==='camp'){
+  if(goalMet()){campWin();return}
+  if(G.spec.limit&&G.moves>=G.spec.limit){G.over=true;persist();setTimeout(()=>campFail('moves'),500);return}
+  if(!canMove()){G.over=true;persist();setTimeout(()=>campFail('stuck'),600);return}
+  persist();return;
+ }
  if(top>=2048&&!G.won){G.won=true;persist();setTimeout(showWin,450);return}
  if(!canMove()){G.over=true;persist();setTimeout(showOver,600);return}
  persist();
@@ -387,11 +355,20 @@ function canMove(){
  const N=G.N;
  if(G.grid.some(t=>!t))return true;
  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-  const v=G.grid[r*N+c].v;
+  const v=G.grid[r*N+c].v;if(v<0)continue;
   if(c<N-1&&G.grid[r*N+c+1].v===v)return true;
   if(r<N-1&&G.grid[(r+1)*N+c].v===v)return true;
  }
  return false;
+}
+function goalMet(){
+ const s=G.spec;
+ return s.type==='tile'?maxTile()>=s.target:s.type==='score'?G.score>=s.target:G.merges>=s.target;
+}
+function goalPct(){
+ const s=G.spec;
+ const v=s.type==='tile'?Math.log2(Math.max(2,maxTile()))/Math.log2(s.target):s.type==='score'?G.score/s.target:G.merges/s.target;
+ return Math.max(0,Math.min(100,Math.round(v*100)));
 }
 function updHUD(bump){
  const k=bestKey();
@@ -401,14 +378,21 @@ function updHUD(bump){
  $('nUndo').textContent=G.undos;$('nSmash').textContent=G.smashes;
  $('pUndo').disabled=G.undos<=0||!G.hist.length;
  $('pSmash').disabled=G.smashes<=0&&!G.smashing;
+ if(G.mode==='camp'){
+  $('goalTxt').textContent=goalText(G.spec);
+  const left=G.spec.limit?G.spec.limit-G.moves:null;
+  $('movesTxt').textContent=left===null?'Moves '+G.moves:'Moves left '+Math.max(0,left);
+  $('movesTxt').classList.toggle('low',left!==null&&left<=10);
+  $('goalFill').style.width=goalPct()+'%';
+ }
 }
 
 /* ---------- POWER-UPS ---------- */
 function undo(){
- if(!G||modalOpen&&!G.over)return;
+ if(!G||(modalOpen&&!G.over))return;
  if(G.undos<=0||!G.hist.length)return;
  const s=G.hist.pop();
- G.undos--;G.over=false;G.score=s.score;rs=s.rs;
+ G.undos--;G.over=false;G.score=s.score;rs=s.rs;G.moves=s.mv;G.merges=s.mg;
  closeModal();fillCells(s.cells);sfx.undo();vib(15);updHUD();persist();
 }
 function toggleSmash(){
@@ -423,7 +407,7 @@ function smashAt(target){
  const el=target&&target.closest?target.closest('.tile'):null;
  const t=G.grid.find(x=>x&&x.el===el);
  if(!t)return;
- G.hist.push({cells:cellsOf(),score:G.score,rs});if(G.hist.length>20)G.hist.shift();
+ G.hist.push(snapNow());if(G.hist.length>20)G.hist.shift();
  G.grid[t.r*G.N+t.c]=null;
  t.el.firstChild.className='in popOut';setTimeout(()=>t.el.remove(),260);
  burstCell(t.r,t.c,Math.max(t.v,64));
@@ -450,7 +434,7 @@ bw.addEventListener('pointerup',e=>{
 function persist(){
  try{
   if(!G||G.over)localStorage.removeItem('mergex_save');
-  else localStorage.setItem('mergex_save',JSON.stringify({N:G.N,mode:G.mode,date:G.date,cells:cellsOf(),score:G.score,undos:G.undos,smashes:G.smashes,won:G.won,rs}));
+  else localStorage.setItem('mergex_save',JSON.stringify({N:G.N,mode:G.mode,lvl:G.lvl,date:G.date,cells:cellsOf(),score:G.score,moves:G.moves,merges:G.merges,undos:G.undos,smashes:G.smashes,won:G.won,rs}));
  }catch(e){}
 }
 function loadSave(){
@@ -463,77 +447,89 @@ function loadSave(){
 function continueGame(){
  const s=loadSave();if(!s)return newGame(4,'classic');
  closeModal();
- G={N:s.N,mode:s.mode,date:s.date,grid:Array(s.N*s.N).fill(null),score:s.score,undos:s.undos,smashes:s.smashes,hist:[],won:s.won,over:false,smashing:false};
+ G=baseGame(s.N,s.mode);
+ G.date=s.date;G.lvl=s.lvl||0;G.score=s.score;G.moves=s.moves||0;G.merges=s.merges||0;G.undos=s.undos;G.smashes=s.smashes;G.won=s.won;
+ if(s.mode==='camp')G.spec=campSpec(G.lvl);
  rs=s.rs;
+ const w=s.mode==='camp'?worldOf(G.lvl):worldOf(1);setPalette(w.h1,w.h2);tileHue=w.h1;
  build();fillCells(s.cells);updHUD();
 }
-function toHome(){persist();closeModal();go('home')}
+function toHome(){persist();closeModal();refreshHome();go('home')}
 
-/* ---------- RESULT ---------- */
+/* ---------- RESULTS ---------- */
 function shareMsg(){
- return `MERGEX 2048 ${G.mode==='daily'?'Daily '+G.date:G.N+'×'+G.N}\n🔥 Score ${G.score} · Best tile ${maxTile()}\nBeat karke dikhao! ${location.href}`;
+ const what=G.mode==='camp'?'Level '+G.lvl:G.mode==='daily'?'Daily '+G.date:G.N+'×'+G.N;
+ return 'MERGEX 2048 '+what+'\n🔥 Score '+G.score+' · Best tile '+maxTile()+'\nBeat karke dikhao! '+location.href;
 }
 function shareNow(){if(G)shareText(shareMsg())}
+function campWin(){
+ G.over=true;persist();
+ const sp=G.spec;
+ let stars;
+ if(sp.limit){const left=(sp.limit-G.moves)/sp.limit;stars=left>=.3?3:left>=.12?2:1}
+ else{const used=3-G.undos+(1-G.smashes);stars=used===0?3:used<=1?2:1}
+ S.cstars[G.lvl]=Math.max(S.cstars[G.lvl]||0,stars);
+ S.camp=Math.max(S.camp,G.lvl+1);saveS();
+ const xp=25+12*stars+sp.tier*5+(sp.boss?40:0),lv=Player.add(xp);
+ setTimeout(()=>{
+  sfxc.win();confetti();vib([40,60,40,60,120]);
+  modal('<div class="big">'+(sp.boss?'👑':stars===3?'🏆':'🎉')+'</div><h2>'+(sp.boss?'BOSS DEFEATED!':'Level '+G.lvl+' Complete!')+'</h2>'
+  +'<div class="stars">'+[1,2,3].map(i=>'<i class="'+(i<=stars?'on':'')+'" style="--d:'+(.25*i)+'s">★</i>').join('')+'</div>'
+  +'<div class="xpchip">+'+xp+' XP</div>'+(lv.up?'<div style="font-weight:900;margin:2px 0 8px">⬆ PLAYER LEVEL '+lv.after+'!</div>':'')
+  +'<div class="grid2"><div><small>Score</small><b>'+G.score+'</b></div><div><small>Moves</small><b>'+G.moves+'</b></div></div>'
+  +'<button class="btn primary" onclick="startCamp('+(G.lvl+1)+')">Next Level →</button>'
+  +'<button class="btn" onclick="shareNow()">📤 Share</button>'
+  +'<div class="row2"><button class="btn" onclick="startCamp('+G.lvl+')">🔄 Replay</button><button class="btn" onclick="openLevels()">🗺 Map</button><button class="btn" onclick="toHome()">🏠 Home</button></div>');
+ },500);
+}
+function campFail(why){
+ sfxc.lose();vib([100,50,100]);
+ FAILS[G.lvl]=(FAILS[G.lvl]||0)+1;
+ const msg=why==='moves'?'Moves khatam ho gaye!':'Board jam ho gaya!';
+ modal('<div class="big">'+(why==='moves'?'⌛':'💥')+'</div><h2>'+msg+'</h2>'
+ +'<p style="opacity:.8;margin-top:0">'+goalText(G.spec)+' · aapka score '+G.score+'</p>'
+ +(G.undos>0&&G.hist.length?'<button class="btn primary" onclick="undo()">↩ Last move undo karo ('+G.undos+')</button>':'')
+ +'<button class="btn '+(G.undos>0&&G.hist.length?'':'primary')+'" onclick="startCamp('+G.lvl+')">🔄 Retry</button>'
+ +(FAILS[G.lvl]>=3?'<button class="btn" onclick="skipLevel('+G.lvl+')">⏭ Level skip karo (bina stars)</button>':'')
+ +'<div class="row2"><button class="btn" onclick="openLevels()">🗺 Map</button><button class="btn" onclick="toHome()">🏠 Home</button></div>');
+}
 function showWin(){
- sfx.win();confetti();vib([40,60,40,60,120]);
- modal(`<div class="big">🏆</div><h2>2048 BAN GAYA!</h2><p style="opacity:.8;margin-top:0">Aap champion ho. Ab aur aage jao?</p>
- <div class="grid2"><div><small>Score</small><b>${G.score}</b></div><div><small>Best Tile</small><b>${maxTile()}</b></div></div>
- <button class="btn primary" onclick="closeModal()">▶ Khelte raho</button>
- ${lbBtn()}
- <button class="btn" onclick="shareNow()">📤 Share</button>
- <button class="btn ghost" onclick="pickSize()">🎮 New Game</button>`);
+ sfxc.win();confetti();vib([40,60,40,60,120]);
+ modal('<div class="big">🏆</div><h2>2048 BAN GAYA!</h2><p style="opacity:.8;margin-top:0">Aap champion ho. Ab aur aage jao?</p>'
+ +'<div class="grid2"><div><small>Score</small><b>'+G.score+'</b></div><div><small>Best Tile</small><b>'+maxTile()+'</b></div></div>'
+ +'<button class="btn primary" onclick="closeModal()">▶ Khelte raho</button>'
+ +lbBtn()+'<button class="btn" onclick="shareNow()">📤 Share</button>'
+ +'<button class="btn ghost" onclick="pickSize()">🎮 New Game</button>');
 }
 function showOver(){
- sfx.lose();vib([100,50,100]);
+ sfxc.lose();vib([100,50,100]);
  const k=bestKey(),isBest=G.score>0&&G.score>=(S.best[k]||0);
- modal(`<div class="big">${isBest?'🎉':'💥'}</div><h2>${isBest?'Naya Record!':'Game Over'}</h2>
- <div class="grid2"><div><small>Score</small><b>${G.score}</b></div><div><small>Best Tile</small><b>${maxTile()}</b></div></div>
- ${G.undos>0&&G.hist.length?`<button class="btn primary" onclick="undo()">↩ Last move undo karo (${G.undos})</button>`:''}
- <button class="btn ${G.undos>0&&G.hist.length?'':'primary'}" onclick="newGame(G.N,G.mode)">🔄 Phir se khelo</button>
- ${lbBtn()}
- <button class="btn" onclick="shareNow()">📤 Share</button>
- <button class="btn ghost" onclick="toHome()">🏠 Home</button>`);
+ modal('<div class="big">'+(isBest?'🎉':'💥')+'</div><h2>'+(isBest?'Naya Record!':'Game Over')+'</h2>'
+ +'<div class="grid2"><div><small>Score</small><b>'+G.score+'</b></div><div><small>Best Tile</small><b>'+maxTile()+'</b></div></div>'
+ +(G.undos>0&&G.hist.length?'<button class="btn primary" onclick="undo()">↩ Last move undo karo ('+G.undos+')</button>':'')
+ +'<button class="btn '+(G.undos>0&&G.hist.length?'':'primary')+'" onclick="newGame(G.N,G.mode)">🔄 Phir se khelo</button>'
+ +lbBtn()+'<button class="btn" onclick="shareNow()">📤 Share</button>'
+ +'<button class="btn ghost" onclick="toHome()">🏠 Home</button>');
 }
 
-/* ---------- SETTINGS ---------- */
-function openSettings(){
- modal(`<h2>⚙ Settings</h2>
- <div class="row"><span>🔊 Sound</span><button class="tog ${S.sound?'on':''}" onclick="tg('sound')">${S.sound?'ON':'OFF'}</button></div>
- <div class="row"><span>📳 Vibration</span><button class="tog ${S.vib?'on':''}" onclick="tg('vib')">${S.vib?'ON':'OFF'}</button></div>
- <h3>THEME</h3>
- <div class="themes">${Object.entries(THEMES).map(([k,t])=>`<button class="chip ${S.theme===k?'on':''}" onclick="setTheme('${k}')">${t.i} ${t.n}</button>`).join('')}</div>
- <button class="btn ghost" onclick="resetAll()">🗑 Reset progress</button>
- <button class="btn primary" onclick="closeModal()">Done</button>`);
-}
-function tg(k){S[k]=!S[k];saveS();openSettings()}
-function setTheme(t){
- S.theme=t;saveS();applyTheme();refreshHome();
- if(G)G.grid.forEach(x=>x&&paint(x));
- openSettings();
-}
-function resetAll(){
- if(!confirm('Saara progress delete ho jayega. Pakka?'))return;
- S.best={};saveS();try{localStorage.removeItem('mergex_save')}catch(e){}
- refreshHome();closeModal();toast('Progress reset ho gaya');
-}
-
+/* ---------- LEADERBOARD ---------- */
 function lbInfo(){
  return G.mode==='daily'?['mergex-daily-'+G.date,'Daily '+G.date.slice(5)]:['mergex-'+G.N,({3:'Hard 3×3',4:'Classic 4×4',5:'Easy 5×5'})[G.N]+' · All-time'];
 }
-function lbBtn(){return LB.on?'<button class="btn" onclick="lbSubmit()">🏆 Leaderboard par daalo</button>':''}
+function lbBtn(){return LB.on&&G.mode!=='camp'?'<button class="btn" onclick="lbSubmit()">🏆 Leaderboard par daalo</button>':''}
 function lbSubmit(){const i=lbInfo();LB.submit(i[0],i[1],G.score)}
 function lbMenu(){
  const d=todayStr();
- modal(`<h2>🏆 Leaderboard</h2>
- <button class="btn primary" onclick="LB.open('mergex-daily-${d}','Daily ${d.slice(5)}')">📅 Aaj ka Daily</button>
- <button class="btn" onclick="LB.open('mergex-4','Classic 4×4 · All-time')">⭐ Classic 4×4</button>
- <button class="btn" onclick="LB.open('mergex-5','Easy 5×5 · All-time')">🟢 Easy 5×5</button>
- <button class="btn" onclick="LB.open('mergex-3','Hard 3×3 · All-time')">🔥 Hard 3×3</button>
- <button class="btn ghost" onclick="closeModal()">Close</button>`);
+ modal('<h2>🏆 Leaderboard</h2>'
+ +'<button class="btn primary" onclick="LB.open(\'mergex-daily-'+d+'\',\'Daily '+d.slice(5)+'\')">📅 Aaj ka Daily</button>'
+ +'<button class="btn" onclick="LB.open(\'mergex-4\',\'Classic 4×4 · All-time\')">⭐ Classic 4×4</button>'
+ +'<button class="btn" onclick="LB.open(\'mergex-5\',\'Easy 5×5 · All-time\')">🟢 Easy 5×5</button>'
+ +'<button class="btn" onclick="LB.open(\'mergex-3\',\'Hard 3×3 · All-time\')">🔥 Hard 3×3</button>'
+ +'<button class="btn ghost" onclick="closeModal()">Close</button>');
 }
 
 refreshHome();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
 </body>
 </html>
