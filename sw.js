@@ -1,6 +1,6 @@
-/* Offline support: network-first, cache fallback. Update aane par V badal do (brainbox-v2 ...). */
-const V='brainbox-v2';
-const ASSETS=['./','index.html','memora.html','mergex.html','lb.js','core.js','ui.css','manifest.json','icon-192.png','icon-512.png'];
+/* Offline support: network-first, cache fallback. Update aane par V badal do (brainbox-v3 ...). */
+const V='brainbox-v3';
+const ASSETS=['./','index.html','memora.html','mergex.html','lb.js','core.js','sound.js','terms.html','ui.css','manifest.json','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','favicon.png','logo-round.png'];
 
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(V).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));

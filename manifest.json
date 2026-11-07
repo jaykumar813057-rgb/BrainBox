@@ -1,5 +1,5 @@
 {
-  "name": "BrainBox Games",
+  "name": "BrainBox",
   "short_name": "BrainBox",
   "description": "MERGEX 2048 aur MEMORA: dimaag tez karne wale games",
   "start_url": "./index.html",
@@ -10,8 +10,23 @@
   "theme_color": "#0a0720",
   "lang": "hi",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

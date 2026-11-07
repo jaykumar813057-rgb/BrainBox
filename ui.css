@@ -125,3 +125,22 @@ button:disabled{cursor:default}
 @keyframes bannerin{0%{opacity:0;transform:scale(.5)}15%{opacity:1;transform:scale(1.12)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.1) translateY(-14px)}}
 .float{position:fixed;transform:translate(-50%,-50%);font-weight:900;font-size:20px;color:#ffd166;text-shadow:0 2px 12px #000;pointer-events:none;z-index:70;animation:fup .9s ease-out forwards;white-space:nowrap}
 @keyframes fup{to{transform:translate(-50%,-190%);opacity:0}}
+
+/* ---- v3 animation helpers ---- */
+.ringfx{position:fixed;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:3px solid var(--rc,#fff);box-shadow:0 0 18px var(--rc,#fff),inset 0 0 12px var(--rc,#fff);pointer-events:none;z-index:60;animation:ringx .7s ease-out forwards}
+@keyframes ringx{from{opacity:.95;transform:scale(1)}to{opacity:0;transform:scale(var(--rs,9))}}
+.flashfx{position:fixed;inset:0;pointer-events:none;z-index:70;background:var(--fc,#fff);opacity:0;animation:flashx .45s ease-out forwards}
+@keyframes flashx{0%{opacity:.5}100%{opacity:0}}
+.shakefx{animation:shakex .4s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes shakex{10%,90%{transform:translate(-1px,0)}20%,80%{transform:translate(3px,-2px)}30%,50%,70%{transform:translate(-6px,3px)}40%,60%{transform:translate(6px,-3px)}}
+.rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.4);transform:scale(0);animation:ripx .55s ease-out forwards;pointer-events:none}
+@keyframes ripx{to{transform:scale(3.2);opacity:0}}
+.btn,.icon,.pw{position:relative;overflow:hidden}
+.vig{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0;transition:opacity .4s;box-shadow:inset 0 0 120px 30px rgba(255,30,60,.55)}
+.vig.on{opacity:1;animation:vigp .9s ease-in-out infinite}
+@keyframes vigp{50%{opacity:.45}}
+.beatx{animation:beatx .35s ease-out}
+@keyframes beatx{0%{transform:scale(1.06);filter:brightness(1.3)}100%{transform:none;filter:none}}
+#bg i.bp{animation-play-state:running;opacity:.95!important}
+.sparkle{position:fixed;pointer-events:none;z-index:80;font-size:22px;animation:spk 1.1s ease-out forwards}
+@keyframes spk{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(260deg)}}

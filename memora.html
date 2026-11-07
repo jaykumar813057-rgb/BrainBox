@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0720">
 <title>MEMORA - Memory Game</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -98,8 +98,10 @@
  </section>
 </main>
 
+<div class="vig" id="vig"></div>
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
+<script src="sound.js"></script>
 <script src="core.js"></script>
 <script src="lb.js"></script>
 <script>
@@ -122,14 +124,17 @@ const PL=[2,3,4,5,6,7,8,9,10,12,14,15,16,18];
 
 /* infinite level generator */
 function levelSpec(n){
- const pairs=PL[Math.min(PL.length-1,Math.floor((n+1)/3))];
+ let pairs=PL[Math.min(PL.length-1,Math.floor((n+1)/3))];
  const boss=n%10===0;
  let mods=[];
  if(boss)mods=['lives','shuffle'];
  else if(n>=6){const m=[null,'shuffle','lives','fog','rush',null][hash('m'+n)%6];if(m)mods=[m]}
- if(boss&&n>=50)mods.push('fog');
- const time=Math.round(Math.max(pairs*4+10,(pairs*8+16)*Math.max(.7,1-n/600))*(boss?1.15:1));
- const lives=mods.includes('lives')?Math.max(4,Math.round(pairs*(boss?.75:.55))+1-Math.floor(n/80)):0;
+ if(boss&&n>=60)mods.push('fog');
+ /* sab levels jeetne layak (simulation se test): shuffle/lives wale levels me pairs limited */
+ if(mods.includes('shuffle'))pairs=Math.min(pairs,boss?10:12);
+ if(mods.includes('lives')&&!boss)pairs=Math.min(pairs,16);
+ const time=Math.round(Math.max(pairs*5.5+14,(pairs*9+16)*Math.max(.8,1-n/800))*(boss?1.2:1)*(mods.includes('shuffle')?1.2:1));
+ const lives=mods.includes('lives')?Math.round(pairs*(boss?1.0:1.15))+4:0;
  return{pairs,time,mods,lives,boss,pack:worldOf(n).w%4,peeks:mods.includes('fog')?1:2};
 }
 
@@ -143,7 +148,7 @@ function onReset(){
 }
 
 /* ---------- SCREENS ---------- */
-function onScreen(id){Sky.setMode(id==='home'?'hub':'game')}
+function onScreen(id){Sky.setMode(id==='home'?'hub':'game');if(id==='home')Snd.music('hub',3);else if(id==='levels')Snd.music('hub',5);else if(id==='game'&&Snd.mode!=='game'&&Snd.mode!=='boss'&&Snd.mode!=='zen')Snd.music('game',13)}
 function refreshHome(){
  const w=worldOf(S.unlocked);setPalette(w.h1,w.h2);
  $('pbar').innerHTML=Player.bar();
@@ -170,8 +175,6 @@ function startZen(){startGame({mode:'zen',pairs:8,time:0,mods:[],lives:0,pack:Ma
 
 /* ---------- GAME CORE ---------- */
 let G=null,tm=0;
-const FAILS={};
-function skipLevel(n){S.unlocked=Math.max(S.unlocked,n+1);save();startLevel(n+1)}
 function startGame(cfg){
  closeModal();clearInterval(tm);
  G=Object.assign({},cfg,{cfg,moves:0,score:0,combo:0,maxCombo:0,matched:0,open:[],lock:false,started:false,paused:false,over:false,frozenUntil:0,peeks:cfg.peeks,freezes:1,left:cfg.time,bonus:0,last:0,livesLeft:cfg.lives||0});
@@ -195,6 +198,7 @@ function startGame(cfg){
  $('timerWrap').classList.remove('frozen');
  $('moves').textContent=0;$('score').textContent=0;
  updHUD();updTimer();renderLives();go('game');requestAnimationFrame(fit);
+ Snd.music(cfg.mode==='zen'?'zen':cfg.boss?'boss':'game',cfg.lvl?worldOf(cfg.lvl).w*7+3:(cfg.seed||11));if(cfg.boss){Snd.sfx('boss');setPalette(350,42);flashFx('#ff2d55')}else Snd.sfx('whoosh');
  if(cfg.boss)banner('👑 BOSS LEVEL',cfg.mods.map(m=>MODS[m].d).join(' · '));
  else if(cfg.mods.length)banner(MODS[cfg.mods[0]].i+' '+MODS[cfg.mods[0]].n,MODS[cfg.mods[0]].d);
  else if(cfg.mode==='campaign'&&cfg.lvl===1)toast('Cards par tap karo, jodi dhoondo! 👆');
@@ -225,15 +229,15 @@ function renderLives(){
 function burstAt(el,pts){
  const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
  burst(x,y);
- if(pts){const f=document.createElement('div');f.className='float';
+ if(pts){ringFx(x,y,G.combo>2?'#ffb703':'#18d2ff',G.combo>2?12:8);if(G.combo>=3)shakeEl($('board'),300);if(G.combo>=5)sparkles(x,y,6);const f=document.createElement('div');f.className='float';
   f.textContent='+'+pts+(G.combo>1?'  🔥x'+G.combo:'');f.style.left=x+'px';f.style.top=y+'px';
   document.body.appendChild(f);setTimeout(()=>f.remove(),900)}
 }
 const sfx={
- flip:()=>tone(520,.08,'triangle',.12),
- match:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.07)),
- miss:()=>tone(200,.22,'sawtooth',.07),
- pow:()=>{tone(300,.15,'square',.07);tone(600,.2,'square',.07,.1)}
+ flip:()=>Snd.sfx('flip'),
+ match:()=>{Snd.sfx('match',G?G.combo:1);if(G&&G.combo>=3&&G.combo%3===0)setTimeout(()=>Snd.sfx('combo',G.combo),160)},
+ miss:()=>Snd.sfx('miss'),
+ pow:()=>Snd.sfx('shuffle')
 };
 function flip(i){
  if(!G||G.over||G.paused||G.lock)return;
@@ -258,7 +262,7 @@ function flip(i){
  }else{
   G.combo=0;
   const hide=G.mods.includes('fog')?520:860;
-  setTimeout(()=>{a.el.classList.add('shake');b.el.classList.add('shake');sfx.miss();vib(60)},220);
+  setTimeout(()=>{a.el.classList.add('shake');b.el.classList.add('shake');sfx.miss();vib(60);flashFx('rgba(255,40,70,.5)')},220);
   setTimeout(()=>{
    a.s=b.s=0;
    [a,b].forEach(x=>x.el.classList.remove('flip','shake'));
@@ -270,7 +274,7 @@ function flip(i){
 }
 function afterPair(){
  if(!G.mods.includes('shuffle'))return;
- const K=Math.max(4,7-Math.floor((G.lvl||0)/50));
+ const K=Math.max(7,9-Math.floor((G.lvl||0)/100));
  if(G.moves%K===0)reshuffle();
 }
 function reshuffle(){
@@ -283,7 +287,7 @@ function reshuffle(){
   c.el.querySelector('.back span').textContent=es[k];
   c.el.classList.remove('wobble');void c.el.offsetWidth;c.el.classList.add('wobble');
  });
- sfx.pow();toast('🔀 Cards badal gaye!');
+ Snd.sfx('shuffle');toast('🔀 Cards badal gaye!');
  setTimeout(()=>{G.lock=false;idx.forEach(i=>G.cards[i].el.classList.remove('wobble'))},480);
 }
 function updHUD(bump){
@@ -309,7 +313,7 @@ function timerStart(){
   if(!G||G.over||G.paused)return;
   const n=performance.now(),dt=(n-G.last)/1000;G.last=n;
   if(n<G.frozenUntil)return;
-  G.left=Math.max(0,G.left-dt*(G.mods.includes('rush')?1.45:1));updTimer();
+  G.left=Math.max(0,G.left-dt*(G.mods.includes('rush')?1.45:1));updTimer();Snd.intensity(G.time&&G.left/G.time<.25?1:0);document.getElementById('vig').classList.toggle('on',!!(G.time&&G.left/G.time<.2&&G.left>0));if(G.time&&G.left<=10&&Math.ceil(G.left)!==G.lt){G.lt=Math.ceil(G.left);Snd.sfx('tick',G.left<=5)}
   if(G.left<=0)lose('time');
  },100);
 }
@@ -317,7 +321,7 @@ function timerStart(){
 /* ---------- POWER-UPS ---------- */
 function usePeek(){
  if(!G||G.over||G.paused||G.lock||G.peeks<=0)return;
- G.peeks--;G.combo=0;G.lock=true;sfx.pow();vib(30);
+ G.peeks--;G.combo=0;G.lock=true;Snd.sfx('peek');vib(30);
  const hid=G.cards.filter(c=>!c.s);
  hid.forEach(c=>c.el.classList.add('flip'));
  updHUD();
@@ -325,7 +329,7 @@ function usePeek(){
 }
 function useFreeze(){
  if(!G||G.over||G.paused||!G.time||!G.started||G.freezes<=0)return;
- G.freezes--;G.frozenUntil=performance.now()+5000;sfx.pow();vib(30);
+ G.freezes--;G.frozenUntil=performance.now()+5000;Snd.sfx('freeze');vib(30);
  $('timerWrap').classList.add('frozen');updHUD();toast('❄ Time 5 second ke liye ruk gaya!');
  setTimeout(()=>$('timerWrap').classList.remove('frozen'),5000);
 }
@@ -362,7 +366,7 @@ function win(){
  }else xp=6;
  lv=Player.add(xp);save();updHUD(true);
  G.shareTxt='MEMORA '+(G.mode==='daily'?'Daily '+G.date:G.name)+'\n'+'⭐'.repeat(stars)+' '+G.moves+' moves · '+G.score+' pts · combo x'+G.maxCombo+'\nBeat karke dikhao! '+location.href;
- setTimeout(()=>{sfxc.win();confetti();vib([40,60,40,60,120]);showResult(stars,xp,lv)},650);
+ setTimeout(()=>{sfxc.win();confetti();cannons();document.getElementById('vig').classList.remove('on');vib([40,60,40,60,120]);showResult(stars,xp,lv)},650);
 }
 function showResult(stars,xp,lv){
  const camp=G.mode==='campaign';
@@ -381,12 +385,10 @@ function showResult(stars,xp,lv){
 }
 function lose(why){
  if(G.over)return;
- G.over=true;clearInterval(tm);sfxc.lose();vib([100,50,100]);
- if(G.mode==='campaign')FAILS[G.lvl]=(FAILS[G.lvl]||0)+1;
+ G.over=true;clearInterval(tm);document.getElementById('vig').classList.remove('on');shakeEl($('board'),500);sfxc.lose();vib([100,50,100]);
  modal('<div class="big">'+(why==='lives'?'💔':'⏰')+'</div><h2>'+(why==='lives'?'Lives Khatam!':'Time Up!')+'</h2>'
  +'<p style="opacity:.8">Aapne '+G.matched+'/'+G.pairs+' pairs jode. Ek aur koshish?</p>'
  +'<button class="btn primary" onclick="startGame(G.cfg)">🔄 Retry</button>'
- +(G.mode==='campaign'&&FAILS[G.lvl]>=3?'<button class="btn" onclick="skipLevel('+G.lvl+')">⏭ Level skip karo (bina stars)</button>':'')
  +'<button class="btn ghost" onclick="quitGame()">🏠 Home</button>');
 }
 
@@ -396,6 +398,7 @@ function lbSubmit(){LB.submit('memora-'+G.date,'Daily '+G.date.slice(5),G.score)
 
 refreshHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+Snd.music('hub',3);
 </script>
 </body>
 </html>

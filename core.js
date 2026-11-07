@@ -6,30 +6,16 @@ function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(see
 function shuffleArr(a,r){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 /* ---------- settings ---------- */
-let ST={sound:true,vib:true};
-try{Object.assign(ST,JSON.parse(localStorage.getItem('bb_settings')||'{}'))}catch(e){}
+let ST={music:true,sfx:true,vib:true};
+try{const o=JSON.parse(localStorage.getItem('bb_settings')||'{}');if(o.sound===false){o.music=false;o.sfx=false}delete o.sound;Object.assign(ST,o)}catch(e){}
 function saveST(){try{localStorage.setItem('bb_settings',JSON.stringify(ST))}catch(e){}}
 
-/* ---------- audio / haptics ---------- */
-let AC;
-function tone(f,d=.12,type='sine',v=.15,delay=0){
- if(!ST.sound)return;
- try{
-  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
-  if(AC.state==='suspended')AC.resume();
-  const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
-  o.type=type;o.frequency.value=f;
-  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);
- }catch(e){}
-}
+/* ---------- audio / haptics (engine: sound.js) ---------- */
 const sfxc={
- tap:()=>tone(620,.06,'triangle',.1),
- whoosh:()=>{tone(200,.25,'sawtooth',.05);tone(500,.3,'triangle',.07,.05);tone(900,.35,'sine',.06,.12)},
- up:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.12,i*.07)),
- win:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.15,i*.1)),
- lose:()=>[400,330,260,200].forEach((f,i)=>tone(f,.3,'sawtooth',.09,i*.15))
+ tap:()=>Snd.sfx('tap'),whoosh:()=>Snd.sfx('whoosh'),up:()=>Snd.sfx('levelup'),
+ win:()=>Snd.sfx('win'),lose:()=>Snd.sfx('lose')
 };
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.btn,.icon,.tog,.node,.pw'))Snd.sfx('tap')},{passive:true});
 function vib(p){if(ST.vib&&navigator.vibrate)try{navigator.vibrate(p)}catch(e){}}
 
 /* ---------- worlds (har 10 level par nayi duniya, kabhi khatam nahi) ---------- */
@@ -195,12 +181,14 @@ function go(id){
 }
 function settingsModal(){
  modal('<h2>⚙ Settings</h2>'
- +'<div class="row"><span>🔊 Sound</span><button class="tog '+(ST.sound?'on':'')+'" onclick="tgST(\'sound\')">'+(ST.sound?'ON':'OFF')+'</button></div>'
+ +'<div class="row"><span>🎵 Music</span><button class="tog '+(ST.music?'on':'')+'" onclick="tgST(\'music\')">'+(ST.music?'ON':'OFF')+'</button></div>'
+ +'<div class="row"><span>🔊 Sound FX</span><button class="tog '+(ST.sfx?'on':'')+'" onclick="tgST(\'sfx\')">'+(ST.sfx?'ON':'OFF')+'</button></div>'
  +'<div class="row"><span>📳 Vibration</span><button class="tog '+(ST.vib?'on':'')+'" onclick="tgST(\'vib\')">'+(ST.vib?'ON':'OFF')+'</button></div>'
  +(typeof onReset==='function'?'<button class="btn ghost" onclick="onReset()">🗑 Is game ka progress reset karo</button>':'')
+ +'<a class="btn ghost" href="terms.html" style="text-decoration:none;display:block;text-align:center">📜 Terms &amp; Conditions</a>'
  +'<button class="btn primary" onclick="closeModal()">Done</button>');
 }
-function tgST(k){ST[k]=!ST[k];saveST();settingsModal()}
+function tgST(k){ST[k]=!ST[k];saveST();Snd.refresh();settingsModal()}
 
 /* ---------- world map (infinite levels, 10 per world) ---------- */
 function mapPage(w,o){
@@ -230,6 +218,7 @@ function mapFocus(){
 /* ---------- logos (SVG) ---------- */
 function logoHub(sz){
  sz=sz||150;
+ return '<img src="logo-round.png" width="'+sz+'" height="'+sz+'" style="border-radius:50%;display:block;box-shadow:0 0 0 3px rgba(255,255,255,.18)" alt="BrainBox">';
  const P=(u,v)=>(50+38*u-38*v).toFixed(1)+','+(8+22*u+22*v).toFixed(1);
  const tile=(u0,u1,v0,v1,f)=>'<polygon points="'+P(u0,v0)+' '+P(u1,v0)+' '+P(u1,v1)+' '+P(u0,v1)+'" fill="'+f+'"/>';
  const tiles=tile(.12,.46,.12,.46,'#8b5cf6')+tile(.54,.88,.12,.46,'#ec4899')+tile(.12,.46,.54,.88,'#06b6d4')+tile(.54,.88,.54,.88,'#ffb703');
@@ -266,3 +255,19 @@ function logoMergex(sz){
  +'<text x="50" y="58" text-anchor="middle" font-size="21" font-weight="900" fill="#fff" font-family="Outfit,system-ui,sans-serif">2048</text>'
  +'<g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M90 10v10M85 15h10"/><path d="M8 84v8M4 88h8"/></g></svg>';
 }
+
+/* ---------- v3 animations ---------- */
+function ringFx(x,y,color,scale){const d=document.createElement('div');d.className='ringfx';d.style.left=x+'px';d.style.top=y+'px';d.style.setProperty('--rc',color||'#fff');d.style.setProperty('--rs',scale||9);document.body.appendChild(d);setTimeout(()=>d.remove(),750)}
+function flashFx(color){const d=document.createElement('div');d.className='flashfx';d.style.setProperty('--fc',color||'#fff');document.body.appendChild(d);setTimeout(()=>d.remove(),500)}
+function shakeEl(el,ms){if(!el)return;el.classList.remove('shakefx');void el.offsetWidth;el.classList.add('shakefx');setTimeout(()=>el.classList.remove('shakefx'),ms||420)}
+function sparkles(x,y,n,emo){for(let i=0;i<(n||8);i++){const d=document.createElement('div');d.className='sparkle';d.textContent=(emo||['✨','⭐','💫'])[i%3];d.style.left=x+'px';d.style.top=y+'px';const a=Math.random()*6.28,r=60+Math.random()*90;d.style.setProperty('--dx',Math.cos(a)*r+'px');d.style.setProperty('--dy',Math.sin(a)*r+'px');d.style.animationDelay=(Math.random()*.25)+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),1500)}}
+function cannons(){const y=innerHeight*.75;[0,innerWidth].forEach(x=>{burst(x,y,40);setTimeout(()=>burst(x,y-80,30),180)})}
+function setBoss(on){if(on)setPalette(350,42);}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.btn,.icon,.pw');if(!b)return;const r=b.getBoundingClientRect(),s=Math.max(r.width,r.height),d=document.createElement('span');d.className='rip';d.style.cssText='width:'+s+'px;height:'+s+'px;left:'+(e.clientX-r.left-s/2)+'px;top:'+(e.clientY-r.top-s/2)+'px';b.appendChild(d);setTimeout(()=>d.remove(),600)},{passive:true});
+/* music beat -> UI pulse */
+if(typeof Snd!=='undefined')Snd.onBeat((b,m)=>{
+ if(m==='zen'||document.hidden)return;
+ const els=document.querySelectorAll(m==='hub'?'#hubLogo img,.gc .gl':'.wordmark:not(.glitch)');
+ if(b%(m==='hub'?2:1)===0)els.forEach(e=>{e.classList.remove('beatx');void e.offsetWidth;e.classList.add('beatx')});
+ if(m!=='hub'&&b%4===0){const i=document.querySelectorAll('#bg i')[b/4%3|0];if(i){i.classList.add('bp');setTimeout(()=>i.classList.remove('bp'),240)}}
+});

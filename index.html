@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0720">
 <title>BrainBox Games</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -61,6 +61,7 @@ body.introing #app{opacity:0;pointer-events:none}
 .load .track{height:8px}
 .load i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--a1),var(--a2));box-shadow:0 0 14px var(--a1);transition:width .15s}
 .load small{display:block;text-align:center;margin-top:8px;opacity:.65;font-size:12px;letter-spacing:.1em}
+#tnc{margin-top:16px;font-size:12px;opacity:.65;display:none}#tnc a{color:#fff;text-decoration:underline}
 #tap{margin-top:34px;font-weight:900;letter-spacing:.25em;font-size:16px;padding:14px 34px;border-radius:40px;background:linear-gradient(120deg,var(--a1),var(--a2));box-shadow:0 10px 40px -8px var(--a1);animation:tp 1.2s ease-in-out infinite;display:none}
 @keyframes tp{50%{transform:scale(1.08);box-shadow:0 10px 60px -4px var(--a2)}}
 </style>
@@ -93,7 +94,7 @@ body.introing #app{opacity:0;pointer-events:none}
   </div>
   <button class="btn" id="inst" hidden>📲 App install karo</button>
   <p id="ios" hidden>iPhone par: Share button dabao, phir <b>Add to Home Screen</b> chuno.</p>
-  <div class="hubfoot">Levels kabhi khatam nahi hote ∞ · Offline bhi chalta hai</div>
+  <div class="hubfoot">Levels kabhi khatam nahi hote ∞ · Offline bhi chalta hai<br><a href="terms.html" style="color:inherit;text-decoration:underline">📜 Terms &amp; Conditions</a></div>
  </section>
 </main>
 
@@ -104,10 +105,12 @@ body.introing #app{opacity:0;pointer-events:none}
  <div id="itag">Brain power loading</div>
  <div class="load"><div class="track"><i id="lbar"></i></div><small id="ltxt">0%</small></div>
  <button id="tap">TAP TO START</button>
+ <div id="tnc">Start karke aap <a href="terms.html">Terms &amp; Conditions</a> se sehmat ho</div>
 </div>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
+<script src="sound.js"></script>
 <script src="core.js"></script>
 <script>
 Sky.init('hub');fxInit();
@@ -133,17 +136,17 @@ function startIntro(){
  intro.style.display='flex';document.body.classList.add('introing');Sky.setMode('intro');
  $('icube').innerHTML=logoHub(150);
  $('iword').innerHTML='BRAINBOX'.split('').map((c,i)=>'<span style="animation-delay:'+(0.9+i*.07)+'s">'+c+'</span>').join('');
- setTimeout(()=>{burst(innerWidth/2,innerHeight*.36,40);tone(140,.6,'sawtooth',.08);tone(280,.5,'triangle',.08,.1)},900);
+ setTimeout(()=>{burst(innerWidth/2,innerHeight*.36,40);Snd.sfx('impact')},900);
  let p=0;const lb=$('lbar'),lt=$('ltxt');
  const iv=setInterval(()=>{
   p=Math.min(100,p+4+Math.random()*9);
   lb.style.width=p+'%';lt.textContent=Math.round(p)+'%';
-  if(p>=100){clearInterval(iv);setTimeout(()=>{document.querySelector('.load').style.display='none';$('tap').style.display='block'},250)}
+  if(p>=100){clearInterval(iv);setTimeout(()=>{document.querySelector('.load').style.display='none';$('tap').style.display='block';$('tnc').style.display='block'},250)}
  },110);
  setTimeout(()=>{},0);
 }
 $('tap').onclick=()=>{
- sfxc.whoosh();vib(25);burst(innerWidth/2,innerHeight*.7,50);
+ Snd.unlock();Snd.music('hub',3);sfxc.whoosh();vib(25);burst(innerWidth/2,innerHeight*.7,50);
  try{sessionStorage.setItem('bb_intro','1')}catch(e){}
  closeIntro();
 };
@@ -153,7 +156,7 @@ function closeIntro(){
 }
 let seen=false;try{seen=sessionStorage.getItem('bb_intro')==='1'}catch(e){}
 refresh();
-if(!seen)startIntro();
+if(!seen)startIntro();else Snd.music('hub',3);
 
 /* install */
 let dp=null;

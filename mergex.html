@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0720">
 <title>MERGEX 2048</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -99,6 +99,7 @@
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
+<script src="sound.js"></script>
 <script src="core.js"></script>
 <script src="lb.js"></script>
 <script>
@@ -115,24 +116,28 @@ function onReset(){
 }
 
 /* ---------- infinite campaign levels ---------- */
-const TT=[32,64,128,256,512,1024,2048,2048,2048];
-const SS=[300,800,2000,4000,8000,14000,22000,32000,45000];
-const MM=[8,20,40,70,110,160,230,320,420];
+const TT=[32,64,128,256,256,512,512,512];
+const SS=[300,800,1500,2500,3500,4500,5500,6500];
+const MM=[8,20,40,70,110,160,200,240];
+/* Har level jeetne layak rakha gaya hai (bot se test hua). Difficulty level ~57 tak badhti hai,
+   uske baad slow growth + alag board/stones/type ki variety se levels kabhi khatam nahi hote. */
 function campSpec(n){
- const tier=Math.min(8,Math.floor((n-1)/8)),type=['tile','score','merges'][(n-1)%3];
+ const tier=Math.min(7,Math.floor((n-1)/8)),type=['tile','score','merges'][(n-1)%3];
  let N=4;
  if(n%11===0)N=3;else if(n%7===0)N=5;
- let target=type==='tile'?TT[tier]:type==='score'?SS[tier]:MM[tier];
- if(n>72&&type!=='tile')target=Math.round(target*Math.min(2,1+Math.floor((n-73)/20)*.25));
- if(N===3){target=type==='tile'?(tier<2?32:64):type==='score'?Math.min(target,800):Math.min(target,25)}
- let stones=n<5?0:Math.floor((n-2)/9)+(n%5===0?1:0);
- const cap=N===3?0:(type==='tile'?(target>=1024?2:target>=256?3:4):6)+(N===5?2:0);
- stones=Math.min(stones,cap);
- const limit=type==='tile'?Math.ceil(target/2.2*(2.4-tier*.1))+12+stones*8:0;
- return{n,N,type,target,stones,limit,tier,boss:n%10===0};
+ const boss=n%10===0,t2=Math.min(7,tier+(boss?1:0));
+ const grow=n>57?Math.min(1.35,1+Math.floor((n-57)/25)*.05):1;
+ let target=type==='tile'?TT[t2]:type==='score'?SS[t2]:MM[t2];
+ if(type==='score')target=Math.round(target*grow/50)*50;
+ else if(type==='merges')target=Math.round(target*grow);
+ if(N===5){target=type==='tile'?Math.min(1024,target*2):type==='score'?Math.round(target*1.6/50)*50:Math.round(target*1.3)}
+ if(N===3){target=type==='tile'?Math.min(target,64):type==='score'?Math.min(target,600):Math.min(target,25)}
+ let stones=0;
+ const sr=(n*37+11)%10;
+ if(n>=6&&N!==3&&sr<3&&(type!=='tile'||target<=256||N===5))stones=(N===5&&tier>=4&&sr<1)?2:1;
+ const limit=type==='tile'?Math.ceil(target*.57*2)+15+stones*10:0;
+ return{n,N,type,target,stones,limit,tier,boss,undos:3+(tier>=3?1:0)+(tier>=5?1:0),smashes:1+(tier>=2?1:0)};
 }
-const FAILS={};
-function skipLevel(n){S.camp=Math.max(S.camp,n+1);saveS();startCamp(n+1)}
 function goalText(sp){return sp.type==='tile'?'🎯 Banao '+sp.target:sp.type==='score'?'⭐ Score '+sp.target:'🔗 '+sp.target+' merges'}
 function shortSub(sp){
  const k=v=>v>=1000?(v/1000).toFixed(v%1000?1:0)+'k':v;
@@ -140,7 +145,7 @@ function shortSub(sp){
 }
 
 /* ---------- SCREENS ---------- */
-function onScreen(id){Sky.setMode(id==='home'?'hub':'game')}
+function onScreen(id){Sky.setMode(id==='home'?'hub':'game');if(id==='home')Snd.music('hub',3);else if(id==='levels')Snd.music('hub',5);else if(id==='game'&&Snd.mode!=='game'&&Snd.mode!=='boss'&&Snd.mode!=='zen')Snd.music('game',13)}
 function refreshHome(){
  const w=worldOf(S.camp);setPalette(w.h1,w.h2);tileHue=w.h1;
  $('pbar').innerHTML=Player.bar();
@@ -197,7 +202,7 @@ function newGame(N,mode){
 function startCamp(n){
  closeModal();
  const sp=campSpec(n);
- G=baseGame(sp.N,'camp');G.lvl=n;G.spec=sp;
+ G=baseGame(sp.N,'camp');G.lvl=n;G.spec=sp;G.undos=sp.undos;G.smashes=sp.smashes;
  rs=(Math.random()*4294967296)|0;
  const w=worldOf(n);setPalette(w.h1,w.h2);tileHue=w.h1;
  build();
@@ -221,6 +226,7 @@ function build(){
  $('modeName').textContent=modeLabel();
  $('goalbar').style.display=G.mode==='camp'?'block':'none';
  go('game');fit();
+ Snd.music(G.mode==='camp'&&G.spec&&G.spec.boss?'boss':'game',G.lvl?worldOf(G.lvl).w*7+3:13);Snd.sfx(G.spec&&G.spec.boss?'boss':'whoosh');if(G.spec&&G.spec.boss){setPalette(350,42);flashFx('#ff2d55')}
 }
 function fit(){
  if(!G)return;
@@ -280,13 +286,14 @@ const maxTile=()=>Math.max(0,...cellsOf());
 const snapNow=()=>({cells:cellsOf(),score:G.score,rs,mv:G.moves,mg:G.merges});
 
 const sfx={
- move:()=>tone(300,.05,'triangle',.05),
- merge:v=>{const k=Math.log2(v);tone(260*Math.pow(2,k/7),.16,'sine',.14);tone(520*Math.pow(2,k/7),.12,'triangle',.06,.05)},
- smash:()=>{tone(180,.18,'square',.09);tone(90,.25,'sawtooth',.09,.06)},
- undo:()=>{tone(500,.1,'triangle',.08);tone(380,.12,'triangle',.08,.08)}
+ move:()=>Snd.sfx('move'),
+ merge:v=>Snd.sfx('merge',v),
+ smash:()=>Snd.sfx('smash'),
+ undo:()=>Snd.sfx('undo')
 };
 function burstCell(r,c,v){
  const b=$('board').getBoundingClientRect();
+ ringFx(b.left+pos(c)+cell/2,b.top+pos(r)+cell/2,v>=512?'#ffb703':v>=128?'#ff4fa3':'#18d2ff',v>=128?12:8);if(v>=256)shakeEl($('board'),350);if(v>=1024){flashFx('#ffd36b');sparkles(innerWidth/2,innerHeight/2,14)}
  burst(b.left+pos(c)+cell/2,b.top+pos(r)+cell/2,Math.min(40,10+Math.log2(Math.max(2,v))*3));
 }
 function gainFloat(n){
@@ -472,7 +479,7 @@ function campWin(){
  S.camp=Math.max(S.camp,G.lvl+1);saveS();
  const xp=25+12*stars+sp.tier*5+(sp.boss?40:0),lv=Player.add(xp);
  setTimeout(()=>{
-  sfxc.win();confetti();vib([40,60,40,60,120]);
+  sfxc.win();confetti();cannons();vib([40,60,40,60,120]);
   modal('<div class="big">'+(sp.boss?'👑':stars===3?'🏆':'🎉')+'</div><h2>'+(sp.boss?'BOSS DEFEATED!':'Level '+G.lvl+' Complete!')+'</h2>'
   +'<div class="stars">'+[1,2,3].map(i=>'<i class="'+(i<=stars?'on':'')+'" style="--d:'+(.25*i)+'s">★</i>').join('')+'</div>'
   +'<div class="xpchip">+'+xp+' XP</div>'+(lv.up?'<div style="font-weight:900;margin:2px 0 8px">⬆ PLAYER LEVEL '+lv.after+'!</div>':'')
@@ -484,17 +491,15 @@ function campWin(){
 }
 function campFail(why){
  sfxc.lose();vib([100,50,100]);
- FAILS[G.lvl]=(FAILS[G.lvl]||0)+1;
  const msg=why==='moves'?'Moves khatam ho gaye!':'Board jam ho gaya!';
  modal('<div class="big">'+(why==='moves'?'⌛':'💥')+'</div><h2>'+msg+'</h2>'
  +'<p style="opacity:.8;margin-top:0">'+goalText(G.spec)+' · aapka score '+G.score+'</p>'
  +(G.undos>0&&G.hist.length?'<button class="btn primary" onclick="undo()">↩ Last move undo karo ('+G.undos+')</button>':'')
  +'<button class="btn '+(G.undos>0&&G.hist.length?'':'primary')+'" onclick="startCamp('+G.lvl+')">🔄 Retry</button>'
- +(FAILS[G.lvl]>=3?'<button class="btn" onclick="skipLevel('+G.lvl+')">⏭ Level skip karo (bina stars)</button>':'')
  +'<div class="row2"><button class="btn" onclick="openLevels()">🗺 Map</button><button class="btn" onclick="toHome()">🏠 Home</button></div>');
 }
 function showWin(){
- sfxc.win();confetti();vib([40,60,40,60,120]);
+ sfxc.win();confetti();cannons();vib([40,60,40,60,120]);
  modal('<div class="big">🏆</div><h2>2048 BAN GAYA!</h2><p style="opacity:.8;margin-top:0">Aap champion ho. Ab aur aage jao?</p>'
  +'<div class="grid2"><div><small>Score</small><b>'+G.score+'</b></div><div><small>Best Tile</small><b>'+maxTile()+'</b></div></div>'
  +'<button class="btn primary" onclick="closeModal()">▶ Khelte raho</button>'
@@ -530,6 +535,7 @@ function lbMenu(){
 
 refreshHome();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+Snd.music('hub',3);
 </script>
 </body>
 </html>
