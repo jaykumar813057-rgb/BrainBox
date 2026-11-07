@@ -1,5 +1,5 @@
-/* Offline support: network-first, cache fallback. Update aane par V badal do (brainbox-v3 ...). */
-const V='brainbox-v3';
+/* Offline support: network-first, cache fallback. Update aane par V badal do (brainbox-v4 ...). */
+const V='brainbox-v4';
 const ASSETS=['./','index.html','memora.html','mergex.html','lb.js','core.js','sound.js','terms.html','ui.css','manifest.json','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','favicon.png','logo-round.png'];
 
 self.addEventListener('install',e=>{
